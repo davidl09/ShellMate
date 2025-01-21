@@ -4,6 +4,9 @@ import os
 import re
 import subprocess
 import sys
+import itertools
+import threading
+import time
 from select import select
 from typing import Optional, List, Generator
 import openai
@@ -38,7 +41,10 @@ You are an efficient terminal assistant. Follow these rules ABSOLUTELY:
 
 Example Valid Interaction:
 User: List my processes
-Assistant: [shell]ps aux | grep $USER[/shell]
+Assistant:  
+```shell
+ps aux | grep $USER
+```
 [After execution]
 Assistant: Result: 142 processes, 58% CPU (Ollama), 2.1GB RAM (Safari), 0 suspicious
 
@@ -56,14 +62,34 @@ CONFIG = {
 
 client = openai.OpenAI(base_url=CONFIG["ollama_base_url"], api_key=CONFIG["api_key"])
 
-def stream_generator(stream: Generator) -> Generator:
-    """Yield characters from a stream with slight delays for natural feel"""
-    for chunk in stream:
-        content = chunk.choices[0].delta.content
-        if content:
-            for char in content:
-                yield char
-                sleep(0.02)  # Natural typing speed
+class ThinkingAnimation:
+    def __init__(self):
+        self.thinking = False
+        self.spinner = itertools.cycle(['/', '-', '\\', '|'])
+        self.thread = None
+
+    def start(self):
+        if not self.thinking:
+            self.thinking = True
+            self.thread = threading.Thread(target=self._animate, daemon=True)
+            self.thread.start()
+
+    def stop(self):
+        self.thinking = False
+        if self.thread is not None:
+            self.thread.join()
+            self.thread = None
+        sys.stdout.write('\r' + ' ' * (len("thinking ") + 1) + '\r')
+        sys.stdout.flush()
+
+    def _animate(self):
+        while self.thinking:
+            for symbol in self.spinner:
+                if not self.thinking:
+                    break
+                sys.stdout.write(f'\rthinking {symbol}')
+                sys.stdout.flush()
+                time.sleep(0.1)
 
 def execute_command_streaming(command: str) -> str:
     """Execute command and stream output in real-time"""
@@ -78,7 +104,6 @@ def execute_command_streaming(command: str) -> str:
             bufsize=1
         )
 
-        # Stream output in real-time
         while True:
             reads = [proc.stdout.fileno(), proc.stderr.fileno()]
             ret = select(reads, [], [], CONFIG["timeout"])
@@ -100,7 +125,6 @@ def execute_command_streaming(command: str) -> str:
             if proc.poll() is not None:
                 break
 
-        # Capture remaining output after process exits
         for line in proc.stdout.readlines():
             sys.stdout.write(line)
             full_output.append(f"STDOUT: {line}")
@@ -127,9 +151,11 @@ def chat_loop():
     messages = [{
         "role": "system",
         "content": SYSTEM_PROMPT
-	}]
+    }]
 
+    thinking_anim = ThinkingAnimation()
     print("\nShell Assistant (type 'exit' to quit)\n")
+    
     while True:
         try:
             user_input = input("\nUser: ").strip()
@@ -137,11 +163,11 @@ def chat_loop():
                 break
 
             messages.append({"role": "user", "content": user_input})
-
-            # Stream initial response
             print("\nAssistant: ", end="", flush=True)
+            
             buffer = ""
             command = None
+            in_think_block = False
             stream = client.chat.completions.create(
                 model=CONFIG["model"],
                 messages=messages,
@@ -149,19 +175,33 @@ def chat_loop():
                 stream=True
             )
 
-            # Stream response and detect commands
             for chunk in stream:
                 content = chunk.choices[0].delta.content or ""
-                print(content, end="", flush=True)
                 buffer += content
-                
-                # Check for command in buffer
+
+                # Process think blocks
+                if not in_think_block and '<think>' in buffer:
+                    parts = buffer.split('<think>', 1)
+                    print(parts[0], end='', flush=True)
+                    buffer = parts[1] if len(parts) > 1 else ''
+                    thinking_anim.start()
+                    in_think_block = True
+
+                if in_think_block and '</think>' in buffer:
+                    parts = buffer.split('</think>', 1)
+                    buffer = parts[1] if len(parts) > 1 else ''
+                    thinking_anim.stop()
+                    in_think_block = False
+
+                if not in_think_block and buffer:
+                    print(buffer, end='', flush=True)
+                    buffer = ''
+
                 if not command:
-                    command = extract_command(buffer)
+                    command = extract_command(content)
 
             messages.append({"role": "assistant", "content": buffer})
 
-            # Execute command flow
             if command:
                 if CONFIG["safe_mode"]:
                     print(f"\n\nDetected command:\n> {command}")
@@ -171,13 +211,11 @@ def chat_loop():
                 print("\nExecuting command...\n")
                 command_output = execute_command_streaming(command)
                 
-                # Add command output to conversation
                 messages.append({
                     "role": "user",
                     "content": f"Command output:\n{command_output}"
                 })
 
-                # Stream final explanation
                 print("\n\nAssistant: ", end="", flush=True)
                 final_response = ""
                 stream = client.chat.completions.create(
@@ -195,6 +233,7 @@ def chat_loop():
                 messages.append({"role": "assistant", "content": final_response})
 
         except KeyboardInterrupt:
+            thinking_anim.stop()
             print("\n\nOperation cancelled by user")
             break
 
@@ -205,3 +244,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nFatal error: {str(e)}")
         sys.exit(1)
+
