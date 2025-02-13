@@ -66,7 +66,7 @@ EXAMPLES:
     ```shell
     commmand2
     ```
-    (User) <result of command1> # command2 is never executed here
+    (User) <result of command1> # command2 is never executed
 
 IMPORTANT:
 - You are an EXECUTOR, not an instructor
