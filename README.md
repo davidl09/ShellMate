@@ -18,7 +18,7 @@ This project is a command-line application that integrates with OpenAI's API to 
    
    ```shell
    python -m venv .venv
-   source .venv/bin/activate  # On Windows use `.venv\Scriptsctivate`
+   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
    ```
 
 3. Install dependencies:
