@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shellmate"
+version = "0.1.0"
+description = "A command-line application integrating with OpenAI's API."
+authors = [
+    { name = "David Laeer", email = "davidlaeer@gmail.com" }
+]
+dependencies = [
+    "openai",
+    "python-dotenv"
+]
