@@ -1,39 +1,52 @@
-# Project Overview
+# ShellMate
 
-This project is a command-line application that integrates with OpenAI's API to execute shell commands and provide responses based on AI output. It includes components for managing chat interactions, extracting shell commands, and handling AI response streams.
+ShellMate is a command-line application that interfaces with OpenAI's API to execute shell commands and provide intelligent responses. It orchestrates chat management, command extraction, and response handling to offer a seamless user experience.
+
 ## Key Components
-- **chat_manager.py**: Manages chat interactions and error handling.
-- **extractcmd.py**: Extracts shell commands from input strings using regex.
-- **main.py**: Entry point for the application, loading environment variables and initiating interactions with the OpenAI API.
-- **shell.py**: Handles shell command execution and logging.
-- **stream_handler.py**: Manages AI response streams and processes outputs.
-- **thinkinganimation.py**: Provides visual feedback during processing.
-## Setup
-1. Ensure Python is installed on your system.
-2. Set up a virtual environment:
-   
+
+- **main.py**: The entry point for the application. Sets up the environment and initiates interactions with OpenAI's API.
+- **chat_manager.py**: Manages chat interactions and error handling. Utilizes environment configs for system prompts.
+- **extractcmd.py**: Extracts shell commands from input strings using regular expressions.
+- **stream_handler.py**: Handles AI response streams, processing data chunks and managing animations.
+- **shell.py**: Executes shell commands, logs activities, and captures execution results.
+- **thinkinganimation.py**: Provides spinner animations to indicate processing status.
+
+## Installation
+
+Ensure Python 3.6+ is installed on your system.
+
+1. **Create and activate a virtual environment:**
+
    ```shell
    python -m venv .venv
-   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+   source .venv/bin/activate  # On Windows use .venv\\Scripts\\activate
    ```
-3. Install dependencies:
+
+2. **Install dependencies:**
+
+   Using `requirements.txt`:
+   ```shell
    pip install -r requirements.txt
-4. Set up environment variables in a `.env` file. Refer to `.env.example` for needed variables.
+   ```
+
+   Or using `pyproject.toml` for modern setups:
+   ```shell
+   pip install .
+   ```
+
+3. **Environment Setup:**
+   Configure your `.env` file. Refer to `.env.example` for required variables.
+
 ## Usage
+
 Run the application using:
+
 ```shell
 python main.py
 ```
-Follow the on-screen instructions to interact with the AI model and execute shell commands.
+
+Follow the on-screen prompts to interact with the AI model, execute commands, and receive feedback.
+
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
-Recommended Model: GPT-4o
-Temperature: 0.8
-## Alternative Installation
-To install this project with the latest Python packaging standards, ensure you have Python 3.6+ and run the following commands:
-1. Create and activate a virtual environment:
-   .venv\Scripts\activate
-2. Install the project dependencies:
-This will install the project and its dependencies listed in the pyproject.toml file.
-   source .venv/bin/activate  # On Windows use .venv\Scripts\activate
-   pip install .
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
