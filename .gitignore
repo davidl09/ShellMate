@@ -5,3 +5,10 @@ __pycache__/
 .env
 .idea/
 
+
+# Ignore log files
+*.log
+
+# Ignore build artifacts
+build/
+

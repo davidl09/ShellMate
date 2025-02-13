@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "shellmate"
+name = "shellmate_davidl09"
 version = "0.1.0"
 description = "A command-line application integrating with OpenAI's API."
 authors = [
@@ -14,5 +14,15 @@ dependencies = [
     "python-dotenv"
 ]
 
+[project.scripts]
+shellmate = "shellmate.shellmate:main"
+
+[project.urls]
+Homepage = "https://github.com/davidl09/ShellMate"
+
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+shellmate = ["system_prompt.txt", ".env"]
+
