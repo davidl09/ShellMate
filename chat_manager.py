@@ -7,8 +7,6 @@ import json
 class Message:
     role: str
     content: str
-    def toJSON(self):
-        return json.dumps(self.__dict__)
 
 class ChatError(Exception):
     def __init__(self, error: str):
@@ -44,24 +42,5 @@ class ChatManager:
     def get_messages(self) -> List[Dict[str, str]]:
         return [msg.__dict__ for msg in self.messages]
     
-    def get_openai_payload(self, model: str = "gpt-3.5-turbo", **kwargs) -> Dict:
-        """
-        Returns a payload dictionary ready to be passed to an OpenAI client.
-        Additional keyword arguments (like temperature, max_tokens, etc.)
-        can be provided to further customize the API call.
-        """
-        payload = {
-            "model": model,
-            "messages": self.get_messages()
-        }
-        payload.update(kwargs)
-        return payload
-    
 
-if __name__ == "__main__":
-    from dotenv import load_dotenv
-    load_dotenv()
-    mgr = ChatManager()
-    mgr.add_user_message("Can you help me create a directory")
-    print(mgr.get_openai_payload())
-    
+   
