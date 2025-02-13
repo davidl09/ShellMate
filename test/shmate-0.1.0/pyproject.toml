@@ -24,5 +24,5 @@ Homepage = "https://github.com/davidl09/ShellMate"
 where = ["src"]
 
 [tool.setuptools.package-data]
-shellmate = ["system_prompt.txt", ".env.example"]
+shellmate = ["system_prompt.txt", ".env"]
 

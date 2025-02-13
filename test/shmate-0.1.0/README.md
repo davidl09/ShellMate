@@ -24,11 +24,6 @@ Ensure Python 3.6+ is installed on your system.
 
 2. **Install dependencies:**
 
-   Using pypi:
-   ```shell
-   pip install shmate
-   ```
-
    Using `requirements.txt`:
    ```shell
    pip install -r requirements.txt
@@ -40,14 +35,14 @@ Ensure Python 3.6+ is installed on your system.
    ```
 
 3. **Environment Setup:**
-   Configure your `.env` file. Refer to `.env.example` for required variables. A script to make this easier will be added soon.
+   Configure your `.env` file. Refer to `.env.example` for required variables.
 
 ## Usage
 
 Run the application using:
 
 ```shell
-shellmate
+python main.py
 ```
 
 Follow the on-screen prompts to interact with the AI model, execute commands, and receive feedback.
