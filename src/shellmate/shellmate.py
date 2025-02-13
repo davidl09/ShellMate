@@ -1,13 +1,12 @@
 #! /usr/bin/env python3
 import os
+import sys
 from os.path import join, dirname
 from dotenv import load_dotenv
 from .extractcmd import extract_commands
 from .stream_handler import handle_response
 
-dotenv_path = join(dirname(__file__), '.env')
-if not load_dotenv(dotenv_path=dotenv_path, verbose=True):
-    print("Could not load .env file, please make sure it exists and is not empty")
+
 
 import os
 from typing import List, Dict
@@ -19,7 +18,10 @@ welcome_message = "ShellMate v0.1\nType 'exit' to quit the program.\nType Ctrl+C
 
 
 def main():
-    load_dotenv()
+    dotenv_path = join(dirname(__file__), '.env')
+    if not load_dotenv(dotenv_path=dotenv_path, verbose=True):
+        print("Could not load .env file, please make sure it exists and is not empty")
+    print_all = "-v" in sys.argv
     print(welcome_message)
     client = openai.OpenAI(
         api_key=os.environ.get("API_KEY"),
@@ -44,7 +46,7 @@ def main():
             temperature=0.8
         )
 
-        response = handle_response(stream, printAll=True)
+        response = handle_response(stream, printAll=print_all)
                 
         chat.add_assistant_message(response)
         commands = extract_commands(response)
