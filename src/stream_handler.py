@@ -20,7 +20,7 @@ def handle_response(stream, printAll = False) -> str:
             chunk = chunk.choices[0].delta.content
             raw_response += chunk
             if printAll:
-                print(chunk, end="")
+                print(chunk, end="", flush=True)
 
             if (len(raw_response) > 0 and raw_response in "<think>") or "<think>" in raw_response:
                 thinking = True
@@ -36,7 +36,7 @@ def handle_response(stream, printAll = False) -> str:
             else:
                 anim.stop()
                 if not printAll:
-                    print(chunk, end="")
+                    print(chunk, end="", flush=True)
     
     print("")
 

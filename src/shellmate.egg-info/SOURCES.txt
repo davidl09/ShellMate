@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+src/shellmate.egg-info/PKG-INFO
+src/shellmate.egg-info/SOURCES.txt
+src/shellmate.egg-info/dependency_links.txt
+src/shellmate.egg-info/requires.txt
+src/shellmate.egg-info/top_level.txt

@@ -1,0 +1,8 @@
+Metadata-Version: 2.2
+Name: shellmate
+Version: 0.1.0
+Summary: A command-line application integrating with OpenAI's API.
+Author-email: David Laeer <davidlaeer@gmail.com>
+License-File: LICENSE
+Requires-Dist: openai
+Requires-Dist: python-dotenv
