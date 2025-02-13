@@ -42,3 +42,7 @@ Follow the on-screen instructions to interact with the AI model and execute shel
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+\nRecommended Model: GPT-4o\nTemperature: 0.8
+
+Recommended Model: GPT-4o
+Temperature: 0.8
