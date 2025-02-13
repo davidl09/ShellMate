@@ -1,4 +1,5 @@
 import os
+from time import time
 import shutil
 import tempfile
 import unittest
@@ -9,20 +10,24 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename=f"{__name__}.log", level=logging.DEBUG)
 
+
+
 # --- The Shell implementation (as provided earlier) ---
 class CommandResult:
-    def __init__(self, exit_code: int, stdout: str, stderr: str):
+    def __init__(self, command: str, exit_code: int, stdout: str, stderr: str):
+        self.command = command
         self.exit_code = exit_code
         self.stdout = stdout
         self.stderr = stderr
 
     def __repr__(self):
-        return f"CommandResult(exit_code={self.exit_code}, stdout={self.stdout!r}, stderr={self.stderr!r})"
+        return f"CommandResult(command={self.command}, exit_code={self.exit_code}, stdout={self.stdout!r}, stderr={self.stderr!r})"
 
 class Shell:
     def __init__(self):
         # Use the default system shell (or /bin/sh if SHELL is not defined)
         self.shell = os.environ.get("SHELL", "/bin/sh")
+        self.max_timeout = int(os.environ.get("MAX_TIMEOUT", "60"))
         # Disable the shell prompt by overriding PS1 (helps avoid extra output)
         env = os.environ.copy()
         env["PS1"] = ""
@@ -50,7 +55,8 @@ class Shell:
         exit_code = None
 
         # Read the shell's output until the marker line is detected.
-        while True:
+        start_time = time()
+        while time() - start_time < self.max_timeout:
             line = self.process.stdout.readline()
             if not line:
                 break  # End-of-file or process termination.
@@ -77,7 +83,7 @@ class Shell:
                 stderr_output += err_line
             else:
                 break
-        cmd_result = CommandResult(exit_code, "".join(stdout_lines), stderr_output)
+        cmd_result = CommandResult(cmd, exit_code, "".join(stdout_lines), stderr_output)
         logger.log(logging.DEBUG, cmd_result.__repr__())
         return cmd_result
     
