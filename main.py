@@ -3,6 +3,7 @@ import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 from extractcmd import extract_commands
+from stream_handler import handle_response
 
 dotenv_path = join(dirname(__file__), '.env')
 if not load_dotenv(dotenv_path=dotenv_path, verbose=True):
@@ -12,7 +13,6 @@ import os
 from typing import List, Dict
 import openai
 from chat_manager import ChatManager, ChatError, Message
-from thinkinganimation import ThinkingAnimation
 from shell import Shell, CommandResult
 
 
@@ -22,7 +22,6 @@ def main():
         base_url=os.environ.get("ENDPOINT"),
     )
 
-    anim = ThinkingAnimation()
     chat = ChatManager()
     shell = Shell()
     has_command_output = False
@@ -34,21 +33,12 @@ def main():
 
         stream = client.chat.completions.create(
             messages=chat.get_messages(),
-            model= os.environ.get("MODEL"),
-            stream=True
+            model=os.environ.get("MODEL"),
+            stream=True,
+            temperature=0.6
         )
 
-        response: str = ""
-        anim.start()
-        for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
-                chunk = chunk.choices[0].delta.content
-                if not anim.thinking:
-                    print(chunk, end="")
-                response = response + chunk
-                if "</think>" in response:
-                    anim.stop()
-
+        response = handle_response(stream, printAll=True)
                 
         chat.add_assistant_message(response)
         commands = extract_commands(response)
@@ -61,9 +51,7 @@ def main():
         has_command_output = True
 
 
-
-
-
 if __name__ == "__main__":
     load_dotenv()
     exit(main())
+
