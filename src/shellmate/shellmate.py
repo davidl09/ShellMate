@@ -5,14 +5,10 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from .extractcmd import extract_commands
 from .stream_handler import handle_response
-
-
-
-import os
-from typing import List, Dict
 import openai
 from .chat_manager import ChatManager, ChatError, Message
 from .shell import Shell
+from .edit_env import edit_env
 
 welcome_message = "ShellMate v0.1\nType 'exit' to quit the program.\nType Ctrl+C to terminate the program at any time.\n"
 
@@ -20,8 +16,8 @@ welcome_message = "ShellMate v0.1\nType 'exit' to quit the program.\nType Ctrl+C
 def main():
     dotenv_path = join(dirname(__file__), '.env')
     if not load_dotenv(dotenv_path=dotenv_path, verbose=True):
-        print("Could not load .env file, please make sure it exists and is not empty")
-    print_all = "-v" in sys.argv
+        edit_env()
+    print_all = "-v" in sys.argv[1:]
     print(welcome_message)
     client = openai.OpenAI(
         api_key=os.environ.get("API_KEY"),
@@ -35,8 +31,10 @@ def main():
     while True:
         if not has_command_output:
             user_prompt = input("\nUser> ")
-            if user_prompt == "exit":
+            if user_prompt == "/exit":
                 break
+            if user_prompt == "/env":
+                edit_env()
             chat.add_user_message(user_prompt)
 
         stream = client.chat.completions.create(
