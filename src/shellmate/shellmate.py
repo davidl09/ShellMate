@@ -10,7 +10,7 @@ from .chat_manager import ChatManager, ChatError, Message
 from .shell import Shell
 from .edit_env import edit_env
 
-welcome_message = "ShellMate v0.1\nType 'exit' to quit the program.\nType Ctrl+C to terminate the program at any time.\n"
+welcome_message = "ShellMate v0.1\nType '/env' to edit environment variables.\nType '/exit' to quit the program.\nType Ctrl+C to terminate the program at any time.\n"
 
 
 def main():

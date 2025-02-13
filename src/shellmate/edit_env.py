@@ -37,7 +37,7 @@ def edit_env():
 
     # Clean up the temporary file
     os.remove(tmp_file)
-    print("The .env file has been created/updated.")
+    print("The .env file has been created/updated. Please restart the application")
 
 # Example usage
 if __name__ == '__main__':
