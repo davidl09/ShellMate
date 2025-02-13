@@ -35,7 +35,7 @@ def main():
             messages=chat.get_messages(),
             model=os.environ.get("MODEL"),
             stream=True,
-            temperature=0.6
+            temperature=0.8
         )
 
         response = handle_response(stream, printAll=True)
