@@ -5,10 +5,6 @@ import tempfile
 import unittest
 import subprocess
 import select
-import logging
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f"{__name__}.log", level=logging.DEBUG)
 
 
 
@@ -84,7 +80,6 @@ class Shell:
             else:
                 break
         cmd_result = CommandResult(cmd, exit_code, "".join(stdout_lines), stderr_output)
-        logger.log(logging.DEBUG, cmd_result.__repr__())
         return cmd_result
     
     def close(self):

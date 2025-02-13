@@ -39,9 +39,6 @@ def handle_response(stream, printAll = False) -> str:
                     print(chunk, end="", flush=True)
     
     print("")
-
-    with open("raw_log.txt", "w") as file:
-        file.write(raw_response)
     return remove_think_block(raw_response)
 
 
