@@ -15,8 +15,11 @@ import openai
 from chat_manager import ChatManager, ChatError, Message
 from shell import Shell, CommandResult
 
+welcome_message = "ShellMate v0.1\nType 'exit' to quit the program.\nType Ctrl+C to terminate the program at any time.\n"
+
 
 def main():
+    print(welcome_message)
     client = openai.OpenAI(
         api_key=os.environ.get("API_KEY"),
         base_url=os.environ.get("ENDPOINT"),
@@ -29,6 +32,8 @@ def main():
     while True:
         if not has_command_output:
             user_prompt = input("\nUser> ")
+            if user_prompt == "exit":
+                break
             chat.add_user_message(user_prompt)
 
         stream = client.chat.completions.create(
