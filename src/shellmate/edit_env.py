@@ -3,8 +3,10 @@ import subprocess
 
 def edit_env():
     # Check if .env.example exists
-    template_file = '.env.example'
-    env_file = '.env'
+    cwd = os.path.dirname(__file__)
+    template_file = os.path.join(cwd, '.env.example')
+    env_file = os.path.join(cwd, '.env')
+    
     if not os.path.exists(template_file) and not os.path.exists(env_file):
         print(f"Error: {template_file} or {env_file} does not exist.")
         return
@@ -17,7 +19,7 @@ def edit_env():
         content = f.read()
 
     # Write the content to a temporary file for editing
-    tmp_file = '.env.tmp'
+    tmp_file = os.path.join(cwd, '.env.tmp')
     with open(tmp_file, 'w') as f:
         f.write(content)
 
@@ -37,6 +39,7 @@ def edit_env():
 
     # Clean up the temporary file
     os.remove(tmp_file)
+    print(f"Writing to {env_file}")
     print("The .env file has been created/updated. Please restart the application")
 
 # Example usage

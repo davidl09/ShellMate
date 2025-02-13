@@ -35,6 +35,7 @@ def main():
                 break
             if user_prompt == "/env":
                 edit_env()
+                continue
             chat.add_user_message(user_prompt)
 
         stream = client.chat.completions.create(
