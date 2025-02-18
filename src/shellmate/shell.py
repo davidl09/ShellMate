@@ -49,12 +49,14 @@ class Shell:
 
         stdout_lines = []
         exit_code = None
+        timed_out = True
 
         # Read the shell's output until the marker line is detected.
         start_time = time()
         while time() - start_time < self.max_timeout:
             line = self.process.stdout.readline()
             if not line:
+                timed_out = False
                 break  # End-of-file or process termination.
             if line.startswith(marker):
                 # The marker line should be of the form: "__CMD_DONE__ <exit_code>"
@@ -79,6 +81,11 @@ class Shell:
                 stderr_output += err_line
             else:
                 break
+
+        stdout_output = "".join(stdout_lines)
+        if timed_out:
+            stdout_output += f"\nComand timed out after {self.max_timeout}s"
+
         cmd_result = CommandResult(cmd, exit_code, "".join(stdout_lines), stderr_output)
         return cmd_result
     
