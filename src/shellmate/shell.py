@@ -66,6 +66,7 @@ class Shell:
                         exit_code = int(parts[1])
                     except ValueError:
                         exit_code = None
+                timed_out = False
                 break
             stdout_lines.append(line)
 
@@ -84,9 +85,9 @@ class Shell:
 
         stdout_output = "".join(stdout_lines)
         if timed_out:
-            stdout_output += f"\nComand timed out after {self.max_timeout}s"
+            stdout_output += f"\nCommand timed out after {self.max_timeout}s"
 
-        cmd_result = CommandResult(cmd, exit_code, "".join(stdout_lines), stderr_output)
+        cmd_result = CommandResult(cmd, exit_code, stdout_output, stderr_output)
         return cmd_result
     
     def close(self):
@@ -171,6 +172,52 @@ class TestShell(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         result = self.shell.executeCommand("pwd")
         self.assertEqual(result.stdout.strip(), self.test_dir)
+
+    def test_command_timeout(self):
+        # Override the default timeout for this test
+        self.shell.max_timeout = 2  # Set timeout to 2 seconds
+        
+        # Test a command that should timeout (sleep for longer than the timeout)
+        result = self.shell.executeCommand("sleep 5")
+        
+        # Verify timeout message appears in stdout
+        self.assertIn(f"Comand timed out after {self.shell.max_timeout}s", result.stdout)
+        
+        # Since the command timed out, exit_code should be None
+        self.assertIsNone(result.exit_code)
+
+    def test_long_running_command_completes(self):
+        # Test a command that runs for less than the timeout period
+        self.shell.max_timeout = 3  # Set timeout to 3 seconds
+        result = self.shell.executeCommand("sleep 1")
+        
+        # Verify command completed successfully
+        self.assertEqual(result.exit_code, 0)
+        
+        # Verify no timeout message in stdout
+        self.assertNotIn("timed out after", result.stdout)
+
+    def test_timeout_environment_variable(self):
+        # Test that the MAX_TIMEOUT environment variable is respected
+        original_timeout = os.environ.get("MAX_TIMEOUT")
+        try:
+            os.environ["MAX_TIMEOUT"] = "1"  # Set 1 second timeout
+            new_shell = Shell()  # Create new shell instance to pick up new timeout
+            
+            # Run a command that should timeout
+            result = new_shell.executeCommand("sleep 3")
+            
+            # Verify timeout message
+            self.assertIn("Comand timed out after 1s", result.stdout)
+            self.assertIsNone(result.exit_code)
+            
+            new_shell.close()
+        finally:
+            # Restore original MAX_TIMEOUT value
+            if original_timeout is not None:
+                os.environ["MAX_TIMEOUT"] = original_timeout
+            else:
+                del os.environ["MAX_TIMEOUT"]
 
 if __name__ == "__main__":
     unittest.main()
