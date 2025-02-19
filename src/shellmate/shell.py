@@ -39,7 +39,7 @@ class Shell:
 
     def executeCommand(self, cmd: str) -> CommandResult:
         # Define a unique marker that signals command completion along with the exit code.
-        marker = "__CMD_DONE__"
+        marker = f"__CMD_DONE_{os.urandom(4).hex()}__"
         # Append an echo command that outputs the marker and the exit code of the last command ($?)
         full_cmd = f"{cmd}\necho {marker} $?\n"
         
@@ -58,8 +58,8 @@ class Shell:
             if not line:
                 timed_out = False
                 break  # End-of-file or process termination.
-            if line.startswith(marker):
-                # The marker line should be of the form: "__CMD_DONE__ <exit_code>"
+            if marker in line:
+                # The marker line should be of the form: "__CMD_DONE_{random}__ <exit_code>"
                 parts = line.strip().split()
                 if len(parts) >= 2:
                     try:
@@ -91,15 +91,13 @@ class Shell:
         return cmd_result
     
     def close(self):
-        # Close all file handles and terminate the process.
-        if self.process.stdin:
-            self.process.stdin.close()
-        if self.process.stdout:
-            self.process.stdout.close()
-        if self.process.stderr:
-            self.process.stderr.close()
+        for pipe in (self.process.stdin, self.process.stdout, self.process.stderr):
+            if pipe:
+                pipe.close()
         self.process.terminate()
-        self.process.wait()
+        self.process.wait(timeout=1)
+        if self.process.poll() is None:
+            self.process.kill()
 
 # --- Test Suite ---
 class TestShell(unittest.TestCase):
