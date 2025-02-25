@@ -24,7 +24,7 @@ def edit_env():
         f.write(content)
 
     # Determine which editor to use (default to nano if EDITOR is not set)
-    editor = os.environ.get('EDITOR', 'nano')
+    editor = os.environ.get('EDITOR', 'vim')
 
     # Open the temporary file in the editor
     subprocess.call([editor, tmp_file])
@@ -40,7 +40,7 @@ def edit_env():
     # Clean up the temporary file
     os.remove(tmp_file)
     print(f"Writing to {env_file}")
-    print("The .env file has been created/updated. Please restart the application")
+    print("The .env file has been created/updated.")
 
 # Example usage
 if __name__ == '__main__':

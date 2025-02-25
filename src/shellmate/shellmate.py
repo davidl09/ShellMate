@@ -6,23 +6,35 @@ from dotenv import load_dotenv
 from .extractcmd import extract_commands
 from .stream_handler import handle_response
 import openai
-from .chat_manager import ChatManager, ChatError, Message
+from .chat_manager import ChatManager, ChatError
 from .shell import Shell
 from .edit_env import edit_env
 
 welcome_message = "ShellMate v0.1\nType '/env' to edit environment variables.\nType '/exit' to quit the program.\nType Ctrl+C to terminate the program at any time.\n"
 
-
-def main():
-    dotenv_path = join(dirname(__file__), '.env')
-    if not load_dotenv(dotenv_path=dotenv_path, verbose=True):
-        edit_env()
-    print_all = "-v" in sys.argv[1:]
-    print(welcome_message)
-    client = openai.OpenAI(
+def load_client():
+    result =  openai.OpenAI(
         api_key=os.environ.get("API_KEY"),
         base_url=os.environ.get("ENDPOINT"),
     )
+
+    print("Client has been reloaded.")
+    return result
+
+
+def main():
+    dotenv_path = join(dirname(__file__), '.env')
+
+    def get_update_env():
+        load_dotenv(dotenv_path=dotenv_path, verbose=True)
+
+    if not get_update_env():
+        edit_env()
+
+    print_all = "-v" in sys.argv[1:]
+    print(welcome_message)
+
+    client = load_client()
 
     chat = ChatManager()
     shell = Shell()
@@ -35,6 +47,8 @@ def main():
                 break
             if user_prompt == "/env":
                 edit_env()
+                get_update_env()
+                load_client()
                 continue
             chat.add_user_message(user_prompt)
 
