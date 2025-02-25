@@ -26,7 +26,7 @@ def main():
     dotenv_path = join(dirname(__file__), '.env')
 
     def get_update_env():
-        load_dotenv(dotenv_path=dotenv_path, verbose=True)
+        return load_dotenv(dotenv_path=dotenv_path, verbose=True)
 
     if not get_update_env():
         edit_env()
